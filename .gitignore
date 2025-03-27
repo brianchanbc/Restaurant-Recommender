@@ -22,3 +22,20 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python distribution / packaging
+backend/dist/
+backend/build/
+*.egg-info/
+
+# Environment files
+backend/.env
+backend/.venv
+backend/env/
+backend/venv/
+backend/ENV/
