@@ -9,6 +9,8 @@ cd backend
 
 pip install -r requirements.txt
 
+source venv/bin/activate
+
 uvicorn api.main:app --reload
 ```
 
