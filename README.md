@@ -21,6 +21,8 @@ cd frontend
 
 npm install
 
+npm run build (only for the first time or when you change the frontend code)
+
 npm run dev
 ```
 
