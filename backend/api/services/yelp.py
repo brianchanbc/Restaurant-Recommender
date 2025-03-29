@@ -52,7 +52,10 @@ def search_restaurants(criteria: SearchCriteria):
         return response.json()
     except requests.exceptions.RequestException as e:
         logger.error(f"Error searching Yelp: {e}")
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return {"error": str(e)}, 500
 
 def search_restaurant_detail(alias):
     """Get details of a restaurant using the Yelp API."""
@@ -66,4 +69,7 @@ def search_restaurant_detail(alias):
         return response.json()
     except requests.exceptions.RequestException as e:
         logger.error(f"Error getting restaurant details from Yelp: {e}")
-        return {"error": str(e)}
+        return {"error": str(e)}, 400
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        return {"error": str(e)}, 500
