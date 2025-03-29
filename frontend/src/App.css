@@ -31,7 +31,6 @@ body {
   text-align: left;
 }
 
-
 .app-container {
   display: flex;
   flex-direction: column;
@@ -39,6 +38,7 @@ body {
   width: 100%;  
   overflow-x: hidden; 
   box-sizing: border-box;
+  background-color: #f5f5f5;
 }
 
 .app-header {
@@ -51,6 +51,11 @@ body {
   position: relative;
   left: 0; 
   right: 0;  
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: var(--bain-red);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .app-header h1 {
@@ -58,6 +63,148 @@ body {
   font-size: 1.8rem;
   font-weight: 600;
   letter-spacing: -0.5px;
+}
+
+.app-header h1:hover {
+  cursor: pointer;
+  transform: scale(1.05);
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 15px;
+  padding: 1rem 2rem;
+}
+
+.app-header h1 {
+  margin: 0;
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+  padding-right: 10px;
+}
+
+.nav-buttons button {
+  white-space: nowrap;
+}
+
+.login-container, .account-container, .register-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.login-title, .account-title, .register-title {
+  font-size: 32px;
+  margin-bottom: 30px;
+  color: var(--text-light);
+  font-weight: 700;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.login-form, .account-form, .register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background-color: var(--medium-gray);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  max-width: 450px;
+  width: 100%;
+  min-height: 300px;
+  max-height: 550px;
+  overflow-y: auto;
+  position: relative;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  max-width: 100%; /* Ensure they don't exceed container width */
+}
+
+.login-form label, .account-form label, .register-form label {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.login-form label span, .account-form label span, .register-form label span {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--off-white);
+}
+
+.login-form label input, .account-form label input, .register-form label input {
+  font-size: 16px;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background-color: var(--off-white);
+  color: var(--dark-gray);
+  width: 95%;
+  transition: all var(--transition-speed);
+}
+
+.login-form label input:focus, .account-form label input:focus, .register-form label input:focus {
+  outline: none;
+  border-color: var(--white);
+  box-shadow: 0 0 0 2px rgba(74, 128, 240, 0.3);
+}
+
+.all-login-buttons, .all-account-buttons, .all-register-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+button {
+  font-size: 16px;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-speed);
+}
+
+.login-button, .register-button, .edit-account-button {
+  background-color: var(--light-gray);
+  color: var(--dark-gray);
+}
+
+.login-button:hover, .register-button:hover, .edit-account-button:hover {
+  background-color: var(--bain-dark-red);
+  color: var(--off-white);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.cancel-login-button, .cancel-account-button, .cancel-register-button {
+  background-color: var(--light-gray);
+  color: var(--dark-gray);
+}
+
+.cancel-login-button:hover, .cancel-account-button:hover, .cancel-register-button:hover {
+  background-color: var(--bain-dark-red);
+  color: var(--off-white);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.register-login-button, .login-register-button {
+  background-color: var(--light-gray);
+  color: var(--dark-gray);
+}
+
+.register-login-button:hover, .login-register-button:hover {
+  color: var(--off-white);
+  background-color: var(--bain-dark-red);
 }
 
 .search-form {
@@ -295,7 +442,7 @@ body {
 
 .error-message {
   color: var(--bain-red);
-  background-color: rgba(192, 0, 0, 0.05);
+  background-color: #FFF0F0; /* Lighter pink background */
 }
 
 .restaurant-card {
@@ -389,6 +536,32 @@ body {
   font-size: 0.9rem;
   margin-bottom: 0.5rem;
   line-height: 1.5;
+}
+
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 50px;
+  margin-bottom: 50px;
+  min-height: calc(100vh - 200px);
+  padding: 20px;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  max-width: 500px;
+  box-sizing: border-box;
+  height: auto;
+  min-height: 400px;
+  display: flex;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 20px 15px;
+  }
 }
 
 @media (max-width: 992px) {
@@ -497,6 +670,16 @@ body {
     flex-wrap: wrap;
     gap: 0.75rem 1rem;
   }
+
+  .nav-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .nav-buttons button {
+    padding: 6px 10px;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -580,6 +763,11 @@ body {
     max-width: calc(100% - 1rem);
     margin: 0 auto;
   }
+
+  .nav-buttons button {
+    padding: 5px 8px;
+    font-size: 0.85rem;
+  }
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) { 
@@ -600,4 +788,25 @@ body {
     padding: 0.5rem 0;
     display: inline-block;
   }
+}
+
+/* Add styling for error messages in authentication forms */
+.login-form .error-message,
+.register-form .error-message,
+.account-form .error-message {
+  color: var(--bain-red);
+  background-color: #f7c8df; /* Lighter pink background instead of transparent red */
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  margin-bottom: 10px;
+  min-height: 20px;
+  max-height: 60px;
+  overflow-y: auto;
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  text-align: center;
+  width: calc(100% - 24px); /* Adjust width accounting for padding */
+  box-sizing: border-box; /* Include padding in width calculation */
+  word-wrap: break-word; /* Allow long words to break */
+  max-width: 100%; /* Ensure it doesn't exceed parent width */
 }
