@@ -5,7 +5,7 @@ import './App.css'
 import Login from './components/Login'
 import Register from './components/Register'
 import Account from './components/Account'
-import Favorite from './components/Favorite'
+// import Favorite from './components/Favorite'
 
 // Define types based on backend models
 interface SearchCriteria {
@@ -74,12 +74,12 @@ function App() {
   const [password, setPassword] = useState<string>('');
   const [passwordConfirm, setConfirmPassword] = useState<string>('');
   
-  const api_key: string = 'user_key';
+  const api_key_name: string = 'api_key'; // Changed variable name to avoid confusion
   const navigate = useNavigate();
 
   // Authentication helpers
   const checkAuthStatus = () => {
-    const storedToken = localStorage.getItem(api_key);
+    const storedToken = localStorage.getItem(api_key_name);
     if (storedToken) {
       setLoginStatus(true);
       setUsername(localStorage.getItem("username") || "");
@@ -89,22 +89,22 @@ function App() {
     }
   };
 
-  const saveAuthData = (username: string, email: string, password: string, authToken: string) => {
+  const saveAuthData = (username: string, email: string, password: string, api_key: string) => {
     localStorage.setItem("username", username);
     localStorage.setItem("email", email)
     localStorage.setItem("password", password);
-    localStorage.setItem(api_key, authToken);
+    localStorage.setItem(api_key_name, api_key);
     setLoginStatus(true);
-    setCurrentView('/account');
+    setCurrentView('/');
     setError('');
-    navigate('/account');
+    navigate('/');
   };
 
   const clearAuthData = () => {
     localStorage.removeItem("username");
     localStorage.removeItem("email");
     localStorage.removeItem("password");
-    localStorage.removeItem(api_key);
+    localStorage.removeItem(api_key_name);
     setUsername('');
     setEmail('')
     setPassword('');
@@ -114,13 +114,50 @@ function App() {
     navigate('/');
   };
 
-  const validatePasswords = (): boolean => {
-    if (password !== passwordConfirm) {
-      setError('Passwords do not match');
+  const validateEmail = (): boolean => {
+    if (!email) {
+      setError('Missing email');
+      return false;
+    }
+    
+    // More comprehensive email validation
+    if (!email.includes('@')) {
+      setError('Invalid email format');
+      return false;
+    }
+    
+    return true;
+  };
+
+  const validatePasswords = (checkRepeat: boolean): boolean => {
+    if (!password) {
+      setError('Missing password');
       setPassword('');
       setConfirmPassword('');
       return false;
     }
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      setPassword('');
+      setConfirmPassword('');
+      return false;
+    }
+    
+    if (checkRepeat) {
+      if (!passwordConfirm) {
+        setError('Please confirm your password');
+        return false;
+      }
+      
+      if (password !== passwordConfirm) {
+        setError('Passwords do not match');
+        setPassword('');
+        setConfirmPassword('');
+        return false;
+      }
+    }
+    
     return true;
   };
 
@@ -132,35 +169,36 @@ function App() {
 
   // Authentication handlers
   const handleLogin = () => {
+    if (!validateEmail() || !validatePasswords(false)) return;
+
     axios.get('/api/login', {
       headers: {
         email: email,
         password: password,
         'Content-Type': 'application/json',
-    }, 
+      }, 
     }).then((response) => {
-      if (response.data.authToken) {
-        saveAuthData(username, email, password, response.data.authToken);
-      }
+      saveAuthData(username, email, password, response.data.api_key);
     }).catch((error) => {
-      setError(error.response.data.error || 'Login failed');
+      setError(error.response?.data?.detail || error.response?.data?.error || 'Login failed');
       setPassword('');
     });
   }
 
   const handleRegister = () => {
-    if (!validatePasswords()) return;
+    if (!validateEmail() || !validatePasswords(true)) return;
 
-    axios.post('/api/register', {
+    axios.post('/api/register', {}, { 
       headers: {
-        username: username,
-        password: password,
         'Content-Type': 'application/json',
+        email: email,
+        password: password
       }
     }).then((response) => {
-      saveAuthData(username, email, password, response.data.authToken);
+      saveAuthData(username, email, password, response.data.api_key);
+      setPassword('');
     }).catch((error) => {
-      setError(error.response.data.error || 'Failed to register');
+      setError(error.response?.data?.detail || error.response?.data?.error || 'Failed to register');
       setUsername('');
       setEmail('');
       setPassword('');
@@ -173,21 +211,21 @@ function App() {
   }
 
   const handleChangeAccount = () => {
-    if (!validatePasswords()) return;
+    if (!validatePasswords(true)) return;
     
-    axios.put('/api/change_password', {
+    axios.put('/api/change_password', {}, {
       headers: {
-        email: email,
-        new_password: password,
-        api_key: localStorage.getItem(api_key),
         'Content-Type': 'application/json',
+        email: email,
+        newPassword: password,
+        apiKey: localStorage.getItem(api_key_name),
       }
     }).then(() => {
       localStorage.setItem("password", password);
       setConfirmPassword('');
       setError('Password changed successfully');
     }).catch((error) => {
-      setError(error.response.data.error);
+      setError(error.response?.data?.detail || error.response?.data?.error || 'Failed to change password');
       setPassword(localStorage.getItem("password") || ""); 
       setConfirmPassword('');
     });
@@ -195,12 +233,13 @@ function App() {
 
   // Navigation handlers
   const handleMenuClick = (targetPage: string) => {
-    if (targetPage === 'Logout') {
+    if (targetPage === 'logout') {
       setCurrentView('/');
       navigate('/');
       return;
     }
-    if ((targetPage === 'Account' || targetPage === 'Favorite') && !isAuthenticated) {
+    if ((targetPage === 'account' || targetPage === 'favorite') && !isAuthenticated) {
+      console.log("GO TO LOGIN");
       setCurrentView('/login');
       navigate('/login');
       return;
@@ -241,15 +280,6 @@ function App() {
     confirmPassword: passwordConfirm,
     setConfirmPassword,
   }
-
-  const channelProps = {
-    errorMessage: error,
-    setError,
-    username,
-    tokenKey: api_key,
-    currentView: activePage,
-    setCurrentView,
-  };
 
   // Helper functions for unit conversion
   const metersToKm = (meters: number): number => meters / 1000;
@@ -706,7 +736,7 @@ function App() {
           } />
 
           <Route path="/account" element={
-            localStorage.getItem(api_key) ? (
+            localStorage.getItem(api_key_name) ? (
               <div className="auth-container">
                 <Account {...changeAccountProps} handleChangeAccount={handleChangeAccount} />
               </div>
@@ -716,7 +746,7 @@ function App() {
           } />
           
           {/* <Route path="/favorite" element={
-            localStorage.getItem(api_key) ? (
+            localStorage.getItem(api_key_name) ? (
               <Favorite {...channelProps} focusView={'0'} />
             ) : (
               <Navigate replace to={"/login"} />
@@ -724,7 +754,7 @@ function App() {
           } /> */}
           
           <Route path="*" element={
-            localStorage.getItem(api_key) ? 
+            localStorage.getItem(api_key_name) ? 
             <Navigate to="/" /> : 
             <Navigate to="/login" />
           } />
