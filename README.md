@@ -23,3 +23,19 @@ npm install
 
 npm run dev
 ```
+
+### Query Database 
+
+```bash
+cd backend/db
+
+sqlite3 recommender.db
+
+.tables
+
+.schema 
+
+select * from user;
+select * from restaurant;
+select * from review;
+```
