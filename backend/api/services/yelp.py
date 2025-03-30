@@ -49,7 +49,7 @@ def search_restaurants(criteria: SearchCriteria):
             params=params
         )
         response.raise_for_status()
-        return response.json()
+        return response.json(), 200
     except requests.exceptions.RequestException as e:
         logger.error(f"Error searching Yelp: {e}")
         return {"error": str(e)}, 400
@@ -57,16 +57,16 @@ def search_restaurants(criteria: SearchCriteria):
         logger.error(f"Unexpected error: {e}")
         return {"error": str(e)}, 500
 
-def search_restaurant_detail(alias):
+def get_restaurant_by_id(business_id):
     """Get details of a restaurant using the Yelp API."""
     try:
-        url = f"{YELP_API_BASE_URL}/businesses/{alias}"
+        url = f"{YELP_API_BASE_URL}/businesses/{business_id}"
         response = requests.get(
             url, 
             headers=get_headers()
         )
         response.raise_for_status()
-        return response.json()
+        return response.json(), 200
     except requests.exceptions.RequestException as e:
         logger.error(f"Error getting restaurant details from Yelp: {e}")
         return {"error": str(e)}, 400

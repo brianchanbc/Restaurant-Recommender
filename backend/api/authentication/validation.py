@@ -82,7 +82,10 @@ def create_user(user: User):
         insert_query = "INSERT INTO user (username, email, password, api_key) VALUES (?, ?, ?, ?)"
         cursor.execute(insert_query, (users[user.email], user.email, hashed_password, api_key))
         conn.commit()
-        return {"message": "User created successfully."}, 201
+        return {
+            "message": "User created successfully.", 
+            "username": users[user.email],
+        }, 201
     except sqlite3.Error as db_error:
         logger.error(f"Database error: {db_error}")
         return {"error": str(db_error)}, 500
