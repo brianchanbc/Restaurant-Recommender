@@ -1,16 +1,10 @@
 import { useEffect } from 'react';
+import { AuthProps } from '../types';
 
-interface RegisterProps {
-  email: string;
-  setEmail: (value: string) => void;
-  password: string;
-  setPassword: (value: string) => void;
+interface RegisterProps extends AuthProps {
   confirmPassword: string;
   setConfirmPassword: (value: string) => void;
   handleRegister: () => void;
-  handleMenuClick: (value: string) => void;
-  errorMessage: string;
-  setCurrentView: (value: string) => void;
 }
 
 const Register = ({
@@ -43,7 +37,7 @@ const Register = ({
         <label>
           <span>Email:</span>
           <input 
-            type="text" 
+            type="email" 
             name="email" 
             value={email} 
             onChange={(e) => setEmail(e.target.value)} 

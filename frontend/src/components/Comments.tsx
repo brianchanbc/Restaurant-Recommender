@@ -1,12 +1,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import axios from 'axios';
-
-interface Comment {
-  id: number;
-  content: string;
-  username: string;
-  commented_at: string;
-}
+import { Comment } from '../types';
+import { formatDate } from '../utils/helpers';
 
 interface CommentsProps {
   restaurantId: string;
@@ -20,11 +15,6 @@ const Comments = ({ restaurantId, isAuthenticated, onLogin }: CommentsProps) => 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [submitting, setSubmitting] = useState<boolean>(false);
-
-  // Fetch comments when component mounts or restaurantId changes
-  useEffect(() => {
-    fetchComments();
-  }, [restaurantId]);
 
   const fetchComments = async () => {
     try {
@@ -40,6 +30,11 @@ const Comments = ({ restaurantId, isAuthenticated, onLogin }: CommentsProps) => 
       setLoading(false);
     }
   };
+
+  // Fetch comments when component mounts or restaurantId changes
+  useEffect(() => {
+    fetchComments();
+  }, [restaurantId]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -71,17 +66,6 @@ const Comments = ({ restaurantId, isAuthenticated, onLogin }: CommentsProps) => 
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date);
   };
 
   return (

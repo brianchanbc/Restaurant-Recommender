@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 
 interface AccountProps {
-  username: string,
+  username: string;
   password: string;
   setPassword: (password: string) => void;
   confirmPassword: string;

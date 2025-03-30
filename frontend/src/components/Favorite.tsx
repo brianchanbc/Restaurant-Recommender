@@ -1,52 +1,24 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import Comments from './Comments';
-
-interface Location {
-  address1: string;
-  city: string;
-  state: string;
-  zip_code: string;
-}
-
-interface Category {
-  alias: string;
-  title: string;
-}
-
-interface Restaurant {
-  id: string;
-  name: string;
-  image_url: string;
-  url: string;
-  review_count: number;
-  rating: number;
-  price?: string;
-  display_phone?: string;
-  location: Location;
-  categories: Category[];
-  isFavorite?: boolean;
-  favoriteCount?: number; 
-  showComments?: boolean;
-}
+import { Restaurant } from '../types';
+import { checkAuthStatus, formatFavoriteCount } from '../utils/helpers';
 
 interface FavoriteProps {
   favorites: Restaurant[];
   toggleFavorite: (restaurant: Restaurant) => void;
   error: string;
-  setError: (error: string) => void;
   isLoading?: boolean; 
 }
 
-const Favorite = ({ favorites, toggleFavorite, error, setError, isLoading = false }: FavoriteProps) => {
+const Favorite = ({ favorites, toggleFavorite, error, isLoading = false }: FavoriteProps) => {
   const [favoriteCounts, setFavoriteCounts] = useState<{[id: string]: number}>({});
   const [favoritesWithComments, setFavoritesWithComments] = useState<Restaurant[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Check authentication status on component mount
   useEffect(() => {
-    const apiKey = localStorage.getItem('api_key');
-    setIsAuthenticated(!!apiKey);
+    setIsAuthenticated(checkAuthStatus());
   }, []);
   
   // Initialize favorites with comments state
@@ -181,9 +153,7 @@ const Favorite = ({ favorites, toggleFavorite, error, setError, isLoading = fals
                 <div className="restaurant-interactions">
                   <div className="favorite-count">
                     <span className="icon heart-icon">♥</span> 
-                    {(favoriteCounts[restaurant.id] || restaurant.favoriteCount || 0) <= 1 
-                      ? `${favoriteCounts[restaurant.id] || restaurant.favoriteCount || 0} Partner Loves This` 
-                      : `${favoriteCounts[restaurant.id] || restaurant.favoriteCount || 0} Partners Love This`}
+                    {formatFavoriteCount(favoriteCounts[restaurant.id] || restaurant.favoriteCount || 0)}
                   </div>
                   <button 
                     className={`comments-toggle ${restaurant.showComments ? 'active' : ''}`}

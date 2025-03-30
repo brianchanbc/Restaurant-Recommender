@@ -1,14 +1,8 @@
 import { useEffect } from 'react';
+import { AuthProps } from '../types';
 
-interface LoginProps {
-  email: string;
-  setEmail: (value: string) => void;
-  password: string;
-  setPassword: (value: string) => void;
+interface LoginProps extends AuthProps {
   handleLogin: () => void;
-  handleMenuClick: (value: string) => void;
-  errorMessage: string;
-  setCurrentView: (value: string) => void;
 }
 
 const Login = ({
@@ -39,7 +33,7 @@ const Login = ({
         <label>
           <span>Email:</span>
           <input 
-            type="text" 
+            type="email" 
             name="email" 
             value={email} 
             onChange={(e) => setEmail(e.target.value)} 
