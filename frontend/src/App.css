@@ -1,6 +1,6 @@
 :root {
-  --bain-red: #C00000;
-  --bain-dark-red: #9A0000;
+  --theme-red: #C00000;
+  --dark-red: #9A0000;
   --dark-gray: #333333;
   --medium-gray: #666666;
   --light-gray: #E5E5E5;
@@ -9,8 +9,8 @@
   
   --heart-font: 'Arial Black', 'Arial Bold', Gadget, sans-serif;
   --heart-transform: scaleX(1.2) scaleY(0.9);
-  --heart-shadow: 0px 0px 2px var(--bain-dark-red);
-  --heart-stroke: 1px var(--bain-dark-red);
+  --heart-shadow: 0px 0px 2px var(--dark-red);
+  --heart-stroke: 1px var(--dark-red);
   --card-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
   --card-hover-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
   --transition-base: all 0.2s ease;
@@ -53,7 +53,7 @@ body {
 }
 
 .app-header {
-  background-color: var(--bain-red);
+  background-color: var(--theme-red);
   color: var(--white);
   padding: 1.5rem 3rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
@@ -65,7 +65,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: var(--bain-red);
+  background-color: var(--theme-red);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -193,7 +193,7 @@ button {
 
 .login-button:hover, .register-button:hover, .edit-account-button:hover,
 .cancel-login-button:hover, .cancel-account-button:hover, .cancel-register-button:hover {
-  background-color: var(--bain-dark-red);
+  background-color: var(--dark-red);
   color: var(--off-white);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -201,7 +201,7 @@ button {
 
 .register-login-button:hover, .login-register-button:hover {
   color: var(--off-white);
-  background-color: var(--bain-dark-red);
+  background-color: var(--dark-red);
 }
 
 .search-form {
@@ -236,7 +236,7 @@ button {
 .search-button {
   padding: 0.85rem 2rem;
   background-color: var(--white);
-  color: var(--bain-red);
+  color: var(--theme-red);
   border: none;
   border-radius: 3px;
   cursor: pointer;
@@ -279,7 +279,7 @@ button {
 .filters-sidebar h2 {
   margin-top: 0;
   font-size: 1.4rem;
-  color: var(--bain-red);
+  color: var(--theme-red);
   border-bottom: 1px solid var(--light-gray);
   padding-bottom: 0.75rem;
   margin-bottom: 1.5rem;
@@ -318,12 +318,12 @@ button {
 }
 
 .filter-select:hover {
-  border-color: var(--bain-red);
+  border-color: var(--theme-red);
 }
 
 .filter-select:focus, .filter-input:focus {
   outline: none;
-  border-color: var(--bain-red);
+  border-color: var(--theme-red);
   box-shadow: 0 0 0 2px rgba(192, 0, 0, 0.1);
 }
 
@@ -348,13 +348,13 @@ button {
   width: 16px;
   height: 16px;
   border: 1px solid var(--medium-gray);
-  accent-color: var(--bain-red);
+  accent-color: var(--theme-red);
 }
 
 .range-slider {
   width: 100%;
   margin: 1rem 0 0.5rem 0;
-  accent-color: var(--bain-red);
+  accent-color: var(--theme-red);
   height: 4px;
 }
 
@@ -398,7 +398,7 @@ button {
 
 .filter-description {
   font-size: 0.9rem;
-  color: var(--bain-red);
+  color: var(--theme-red);
   margin-top: 0;
   font-style: italic;
 }
@@ -414,7 +414,7 @@ button {
 .results-list h2 {
   margin-top: 0;
   font-size: 1.4rem;
-  color: var(--bain-red);
+  color: var(--theme-red);
   border-bottom: 1px solid var(--light-gray);
   padding-bottom: 0.75rem;
   margin-bottom: 1.5rem;
@@ -440,9 +440,9 @@ button {
   padding: 15px 20px;
   margin-bottom: 20px;
   background-color: #FFF0F0;
-  border-left: 4px solid var(--bain-red);
+  border-left: 4px solid var(--theme-red);
   border-radius: 4px;
-  color: var(--bain-red);
+  color: var(--theme-red);
   font-weight: 500;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   text-align: center;
@@ -504,13 +504,13 @@ button {
 }
 
 .restaurant-info h3 a {
-  color: var(--bain-red);
+  color: var(--theme-red);
   text-decoration: none;
   transition: color 0.2s;
 }
 
 .restaurant-info h3 a:hover {
-  color: var(--bain-dark-red);
+  color: var(--dark-red);
 }
 
 .restaurant-meta {
@@ -817,7 +817,7 @@ button {
 .login-form .error-message,
 .register-form .error-message,
 .account-form .error-message {
-  color: var(--bain-red);
+  color: var(--theme-red);
   background-color: #f7c8df;
   padding: 8px 12px;
   border-radius: 4px;
@@ -851,9 +851,9 @@ button {
   z-index: 10;
   font-size: 24px;
   color: transparent;
-  text-shadow: 0 0 1px var(--bain-dark-red);
+  text-shadow: 0 0 1px var(--dark-red);
   transition: var(--transition-base);
-  -webkit-text-stroke: 1.5px var(--bain-dark-red);
+  -webkit-text-stroke: 1.5px var(--dark-red);
   letter-spacing: -2px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
@@ -876,8 +876,8 @@ button {
 .restaurant-card[style*="flex-direction: column"] .favorite-button {
   top: 215px !important;
   right: 10px;
-  color: var(--bain-dark-red);
-  -webkit-text-stroke: 0.5px var(--bain-dark-red);
+  color: var(--dark-red);
+  -webkit-text-stroke: 0.5px var(--dark-red);
   z-index: 20;
 }
 
@@ -888,9 +888,9 @@ button {
 }
 
 .favorite-button.is-favorite {
-  color: var(--bain-dark-red) !important;
-  -webkit-text-stroke: 0.5px var(--bain-dark-red);
-  text-shadow: 0px 0px 1px var(--bain-dark-red);
+  color: var(--dark-red) !important;
+  -webkit-text-stroke: 0.5px var(--dark-red);
+  text-shadow: 0px 0px 1px var(--dark-red);
   background-color: rgba(255, 255, 255, 0.9);
 }
 
@@ -958,8 +958,8 @@ button {
   top: 190px;
   right: 10px; 
   position: absolute;
-  color: var(--bain-dark-red);
-  -webkit-text-stroke: 0.5px var(--bain-dark-red);
+  color: var(--dark-red);
+  -webkit-text-stroke: 0.5px var(--dark-red);
   transform: translateY(0.5rem);
 }
 
@@ -1092,7 +1092,7 @@ button {
 }
 
 .favorite-count {
-  color: var(--bain-red);
+  color: var(--theme-red);
   font-size: 0.9rem;
   display: inline-flex;
   align-items: center;
@@ -1116,7 +1116,7 @@ button {
 
 .favorite-header h2 {
   font-size: 2rem;
-  color: var(--bain-red);
+  color: var(--theme-red);
   margin-bottom: 8px;
 }
 
@@ -1139,12 +1139,12 @@ button {
 
 .empty-favorites-icon {
   font-size: 40px;
-  color: var(--bain-dark-red);
+  color: var(--dark-red);
   margin-bottom: 20px;
   font-family: var(--heart-font);
   font-weight: 900;
   text-shadow: var(--heart-shadow);
-  -webkit-text-stroke: 2px var(--bain-dark-red);
+  -webkit-text-stroke: 2px var(--dark-red);
   letter-spacing: -3px;
   transform: var(--heart-transform);
   display: inline-block;
@@ -1161,24 +1161,24 @@ button {
 }
 
 .heart-icon {
-  color: var(--bain-dark-red) !important;
+  color: var(--dark-red) !important;
   font-size: 14px;
   margin-right: 4px;
 }
 
 .favorite-button.is-favorite {
-  color: var(--bain-dark-red) !important;
-  -webkit-text-stroke: 0.5px var(--bain-dark-red);
-  text-shadow: 0px 0px 1px var(--bain-dark-red);
+  color: var(--dark-red) !important;
+  -webkit-text-stroke: 0.5px var(--dark-red);
+  text-shadow: 0px 0px 1px var(--dark-red);
   background-color: rgba(255, 255, 255, 0.9);
   transform: var(--heart-transform);
 }
 
 .restaurant-card.grid-card .favorite-button,
 .restaurant-card[style*="flex-direction: column"] .favorite-button {
-  color: var(--bain-dark-red) !important;
-  -webkit-text-stroke: 0.5px var(--bain-dark-red);
-  text-shadow: 0px 0px 1px var(--bain-dark-red);
+  color: var(--dark-red) !important;
+  -webkit-text-stroke: 0.5px var(--dark-red);
+  text-shadow: 0px 0px 1px var(--dark-red);
   transform: var(--heart-transform);
 }
 
@@ -1186,7 +1186,7 @@ button {
   color: var(--medium-gray);
 }
 .grid-card .favorite-count .heart-icon {
-  color: var(--bain-dark-red) !important;
+  color: var(--dark-red) !important;
 }
 
 .loading-favorites {
@@ -1202,7 +1202,7 @@ button {
   height: 40px;
   border: 4px solid var(--light-gray);
   border-radius: 50%;
-  border-top-color: var(--bain-red);
+  border-top-color: var(--theme-red);
   animation: spin 1s ease-in-out infinite;
   margin-bottom: 20px;
 }
@@ -1311,7 +1311,7 @@ button {
 }
 
 .heart-icon {
-  color: var(--bain-red);
+  color: var(--theme-red);
   font-size: 14px;
   font-weight: bold;
   margin-right: 4px;
@@ -1384,14 +1384,14 @@ button {
 }
 
 .favorite-count .heart-icon {
-  color: var(--bain-red) !important;
+  color: var(--theme-red) !important;
   font-size: 14px;
   font-weight: bold;
   margin-right: 2px;
   font-family: var(--heart-font);
   transform: var(--heart-transform);
   display: inline-block;
-  -webkit-text-stroke: 0.5px var(--bain-dark-red);
+  -webkit-text-stroke: 0.5px var(--dark-red);
   text-shadow: var(--heart-shadow);
 }
 
@@ -1477,7 +1477,7 @@ button {
 
 .comment-input:focus {
   outline: none;
-  border-color: var(--bain-red);
+  border-color: var(--theme-red);
 }
 
 .comment-input:disabled {
@@ -1486,13 +1486,13 @@ button {
 }
 
 .comment-error {
-  color: var(--bain-red);
+  color: var(--theme-red);
   font-size: 0.9rem;
   margin-bottom: 10px;
 }
 
 .comment-submit {
-  background-color: var(--bain-red);
+  background-color: var(--theme-red);
   color: white;
   padding: 8px 15px;
   border: none;
@@ -1503,7 +1503,7 @@ button {
 }
 
 .comment-submit:hover:not(:disabled) {
-  background-color: var(--bain-dark-red);
+  background-color: var(--dark-red);
 }
 
 .comment-submit:disabled {
@@ -1550,7 +1550,7 @@ button {
 
 .comment-username {
   font-weight: 600;
-  color: var(--bain-red);
+  color: var(--theme-red);
 }
 
 .comment-date {
