@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 interface AccountProps {
+  username: string,
   password: string;
   setPassword: (password: string) => void;
   confirmPassword: string;
@@ -12,6 +13,7 @@ interface AccountProps {
 }
 
 const Account = ({
+  username,
   password,
   setPassword,
   confirmPassword,
@@ -33,7 +35,7 @@ const Account = ({
 
   return (
     <div className="account-container">
-      <div className="account-title">Account</div>
+      <div className="account-title">{username}</div>
       
       <form className="account-form" onSubmit={handleSubmit}>        
         <label>
