@@ -7,6 +7,8 @@
 ```bash
 cd backend
 
+python -m venv venv
+
 pip install -r requirements.txt
 
 source venv/bin/activate
@@ -40,4 +42,15 @@ sqlite3 recommender.db
 select * from user;
 select * from restaurant;
 select * from review;
+```
+
+### Password Management
+
+```bash
+cd backend
+
+touch .env
+
+# Replace {INSERT ACTUAL KEY} with your actual Yelp API key
+echo "YELP_API_KEY={INSERT ACTUAL KEY}" >> .env
 ```
