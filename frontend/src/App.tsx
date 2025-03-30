@@ -5,7 +5,7 @@ import './App.css'
 import Login from './components/Login'
 import Register from './components/Register'
 import Account from './components/Account'
-// import Favorite from './components/Favorite'
+import Favorite from './components/Favorite'
 
 // Define types based on backend models
 interface SearchCriteria {
@@ -37,6 +37,8 @@ interface Restaurant {
     alias: string;
     title: string;
   }[];
+  isFavorite?: boolean; 
+  favoriteCount?: number; 
 }
 
 interface SearchResponse {
@@ -51,18 +53,21 @@ interface SearchResponse {
 }
 
 function App() {
-  // Search criteria state
-  const [criteria, setCriteria] = useState<SearchCriteria>({
+  // Define initial criteria state as a constant for reuse
+  const initialCriteria: SearchCriteria = {
     term: '',
     location: '',
     limit: 20,
     sort_by: 'best_match',
     price: '1,2,3,4'
-  });
+  };
+
+  // Search criteria state - now using the initialCriteria constant
+  const [criteria, setCriteria] = useState<SearchCriteria>(initialCriteria);
 
   // Results state
   const [results, setResults] = useState<Restaurant[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [hasSearched, setHasSearched] = useState(false); 
 
@@ -74,8 +79,12 @@ function App() {
   const [password, setPassword] = useState<string>('');
   const [passwordConfirm, setConfirmPassword] = useState<string>('');
   
-  const api_key_name: string = 'api_key'; // Changed variable name to avoid confusion
+  const api_key_name: string = 'api_key'; 
   const navigate = useNavigate();
+
+  // Add state for favorites
+  const [favorites, setFavorites] = useState<Restaurant[]>([]);
+  const [favoritesLoading, setFavoritesLoading] = useState<boolean>(false);
 
   // Authentication helpers
   const checkAuthStatus = () => {
@@ -94,9 +103,11 @@ function App() {
     localStorage.setItem("email", email)
     localStorage.setItem("password", password);
     localStorage.setItem(api_key_name, api_key);
+    setUsername(username);
     setLoginStatus(true);
     setCurrentView('/');
     setError('');
+    setCriteria(initialCriteria); 
     navigate('/');
   };
 
@@ -109,6 +120,10 @@ function App() {
     setEmail('')
     setPassword('');
     setConfirmPassword('');
+    setResults([]);
+    setFavorites([]);
+    setError('');
+    setCriteria(initialCriteria); 
     setLoginStatus(false);
     setCurrentView('/');
     navigate('/');
@@ -167,35 +182,148 @@ function App() {
     checkAuthStatus();
   }, [activePage]);
 
+  // Load favorites on authentication status change
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchFavorites();
+    } else {
+      setFavorites([]);
+    }
+  }, [isAuthenticated]);
+
+  // Fetch user favorites from the backend
+  const fetchFavorites = async () => {
+    if (!localStorage.getItem(api_key_name)) return;
+    
+    // Set loading to true when fetching starts
+    setFavoritesLoading(true); 
+    try {
+      const response = await axios.get('/api/favorites', {
+        headers: {
+          'Content-Type': 'application/json',
+          'apiKey': localStorage.getItem(api_key_name) || '',
+        }
+      });
+      setFavorites(response.data.favorites || []);
+      
+      // Update isFavorite flag for any currently displayed results
+      if (results.length > 0) {
+        const favIds = response.data.favorites.map((fav: Restaurant) => fav.id);
+        
+        // Also get favorite counts when updating favorites
+        const restaurantIds = results.map(restaurant => restaurant.id);
+        try {
+          const countsResponse = await axios.post('/api/favorites/counts', restaurantIds);
+          const counts = countsResponse.data.counts || {};
+          
+          // Update both isFavorite status and favorite counts
+          setResults(results.map(restaurant => ({
+            ...restaurant,
+            isFavorite: favIds.includes(restaurant.id),
+            favoriteCount: counts[restaurant.id] || 0
+          })));
+        } catch (err) {
+          console.error('Error fetching favorite counts:', err);
+          // Just update favorite status if counts fail
+          setResults(results.map(restaurant => ({
+            ...restaurant,
+            isFavorite: favIds.includes(restaurant.id)
+          })));
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching favorites:', err);
+    } finally {
+      // Set loading to false when fetching completes
+      setFavoritesLoading(false); 
+    }
+  };
+
+  // Toggle favorite status for a restaurant
+  const toggleFavorite = async (restaurant: Restaurant) => {
+    if (!isAuthenticated) {
+      setError("Please log in to save favorites");
+      navigate('/login');
+      return;
+    }
+    
+    try {
+      if (restaurant.isFavorite) {
+        // Remove from favorites
+        await axios.delete(`/api/favorites/${restaurant.id}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'apiKey': localStorage.getItem(api_key_name) || '',
+          }
+        });
+        
+        // Update local state
+        setFavorites(favorites.filter(fav => fav.id !== restaurant.id));
+        
+        // Update results list - decrement favorite count
+        setResults(results.map(r => 
+          r.id === restaurant.id ? { 
+            ...r, 
+            isFavorite: false,
+            favoriteCount: (r.favoriteCount || 1) - 1 // Decrement count
+          } : r
+        ));
+      } else {
+        // Add to favorites
+        await axios.post('/api/favorites', restaurant, {
+          headers: {
+            'Content-Type': 'application/json',
+            'apiKey': localStorage.getItem(api_key_name) || '',
+          }
+        });
+        
+        // Update local state with favorite flag
+        setFavorites([...favorites, { ...restaurant, isFavorite: true }]);
+        
+        // Update results list - increment favorite count
+        setResults(results.map(r => 
+          r.id === restaurant.id ? { 
+            ...r, 
+            isFavorite: true,
+            favoriteCount: (r.favoriteCount || 0) + 1 // Increment count
+          } : r
+        ));
+      }
+    } catch (err) {
+      console.error('Error updating favorites:', err);
+      setError('Failed to update favorites');
+    }
+  };
+
   // Authentication handlers
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!validateEmail() || !validatePasswords(false)) return;
 
-    axios.get('/api/login', {
+    await axios.get('/api/login', {
       headers: {
         email: email,
         password: password,
         'Content-Type': 'application/json',
       }, 
     }).then((response) => {
-      saveAuthData(username, email, password, response.data.api_key);
+      saveAuthData(response.data.username, email, password, response.data.api_key);
     }).catch((error) => {
       setError(error.response?.data?.detail || error.response?.data?.error || 'Login failed');
       setPassword('');
     });
   }
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (!validateEmail() || !validatePasswords(true)) return;
 
-    axios.post('/api/register', {}, { 
+    await axios.post('/api/register', {}, { 
       headers: {
         'Content-Type': 'application/json',
         email: email,
         password: password
       }
     }).then((response) => {
-      saveAuthData(username, email, password, response.data.api_key);
+      saveAuthData(response.data.username, email, password, response.data.api_key);
       setPassword('');
     }).catch((error) => {
       setError(error.response?.data?.detail || error.response?.data?.error || 'Failed to register');
@@ -210,10 +338,10 @@ function App() {
     clearAuthData();
   }
 
-  const handleChangeAccount = () => {
+  const handleChangeAccount = async () => {
     if (!validatePasswords(true)) return;
     
-    axios.put('/api/change_password', {}, {
+    await axios.put('/api/change_password', {}, {
       headers: {
         'Content-Type': 'application/json',
         email: email,
@@ -263,15 +391,18 @@ function App() {
     errorMessage: error,
     setCurrentView,
     handleMenuClick,
+    handleLogin  
   };
 
   const registerAccountProps = {
     ...authProps,
     confirmPassword: passwordConfirm,
     setConfirmPassword,
+    handleRegister  
   };
 
   const changeAccountProps = {
+    username,
     password,
     setPassword,
     errorMessage: error,
@@ -279,6 +410,15 @@ function App() {
     handleMenuClick,
     confirmPassword: passwordConfirm,
     setConfirmPassword,
+    handleChangeAccount  
+  }
+
+  const favoriteProps = {
+    favorites,
+    toggleFavorite,
+    error,
+    setError,
+    isLoading: favoritesLoading 
   }
 
   // Helper functions for unit conversion
@@ -370,7 +510,34 @@ function App() {
 
     try {
       const response = await axios.post<SearchResponse>('/api/search', criteria);
-      setResults(response.data.businesses);
+      
+      // Mark favorites in the results
+      const favIds = favorites.map(fav => fav.id);
+      const markedResults = response.data.businesses.map(business => ({
+        ...business,
+        isFavorite: favIds.includes(business.id)
+      }));
+      
+      setResults(markedResults);
+      
+      // Fetch favorite counts for the results
+      if (markedResults.length > 0) {
+        const restaurantIds = markedResults.map(restaurant => restaurant.id);
+        try {
+          const countsResponse = await axios.post('/api/favorites/counts', restaurantIds);
+          const counts = countsResponse.data.counts || {};
+          
+          // Update results with favorite counts
+          setResults(prevResults => 
+            prevResults.map(restaurant => ({
+              ...restaurant,
+              favoriteCount: counts[restaurant.id] || 0
+            }))
+          );
+        } catch (countErr) {
+          console.error('Error fetching favorite counts:', countErr);
+        }
+      }
     } catch (err) {
       console.error('Error fetching results:', err);
       // Handle axios errors specifically
@@ -677,6 +844,13 @@ function App() {
                         <h2>Recommended Restaurants</h2>
                         {results.map(restaurant => (
                           <div key={restaurant.id} className="restaurant-card">
+                            <button 
+                              className={`favorite-button ${restaurant.isFavorite ? 'is-favorite' : ''}`}
+                              onClick={() => toggleFavorite(restaurant)}
+                              aria-label={restaurant.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                            >
+                              {restaurant.isFavorite ? '♥' : '♡'}
+                            </button>
                             <div className="restaurant-image">
                               {restaurant.image_url ? (
                                 <img src={restaurant.image_url} alt={restaurant.name} />
@@ -695,17 +869,25 @@ function App() {
                                 <span className="review-count">({restaurant.review_count} reviews)</span>
                                 {restaurant.price && <span className="price">{restaurant.price}</span>}
                               </div>
-                              <div className="restaurant-categories">
-                                <strong>Cuisine:</strong> {restaurant.categories.map(cat => cat.title).join(', ')}
-                              </div>
-                              <div className="restaurant-address">
-                                <strong>Location:</strong> {restaurant.location.address1}, {restaurant.location.city}
-                              </div>
-                              {restaurant.display_phone && (
-                                <div className="restaurant-phone">
-                                  <strong>Phone:</strong> {restaurant.display_phone}
+                              <div className="restaurant-data">
+                                <div className="restaurant-categories">
+                                  <span className="icon">🍽️</span> {restaurant.categories.map(cat => cat.title).join(', ')}
                                 </div>
-                              )}
+                                <div className="restaurant-address">
+                                  <span className="icon">📍</span> {restaurant.location.address1}, {restaurant.location.city}
+                                </div>
+                                {restaurant.display_phone && (
+                                  <div className="restaurant-phone">
+                                    <span className="icon">📞</span> {restaurant.display_phone}
+                                  </div>
+                                )}
+                                <div className="favorite-count">
+                                  <span className="icon heart-icon">♥</span> 
+                                  {(restaurant.favoriteCount || 0) <= 1 
+                                    ? `${restaurant.favoriteCount || 0} Partner Loves This` 
+                                    : `${restaurant.favoriteCount || 0} Partners Love This`}
+                                </div>
+                              </div>
                             </div>
                           </div>
                         ))}
@@ -725,33 +907,33 @@ function App() {
           
           <Route path="/login" element={
             <div className="auth-container">
-              <Login {...authProps} handleLogin={handleLogin} />
+              <Login {...authProps} />
             </div>
           } />
           
           <Route path="/register" element={
             <div className="auth-container">
-              <Register {...registerAccountProps} handleRegister={handleRegister} />
+              <Register {...registerAccountProps} />
             </div>
           } />
 
           <Route path="/account" element={
             localStorage.getItem(api_key_name) ? (
               <div className="auth-container">
-                <Account {...changeAccountProps} handleChangeAccount={handleChangeAccount} />
+                <Account {...changeAccountProps} />
               </div>
             ) : (
               <Navigate replace to={"/login"} />
             )
           } />
           
-          {/* <Route path="/favorite" element={
+          <Route path="/favorite" element={
             localStorage.getItem(api_key_name) ? (
-              <Favorite {...channelProps} focusView={'0'} />
+              <Favorite {...favoriteProps} />
             ) : (
               <Navigate replace to={"/login"} />
             )
-          } /> */}
+          } />
           
           <Route path="*" element={
             localStorage.getItem(api_key_name) ? 
