@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import Comments from './Comments';
 
 interface Location {
   address1: string;
@@ -26,6 +27,7 @@ interface Restaurant {
   categories: Category[];
   isFavorite?: boolean;
   favoriteCount?: number; 
+  showComments?: boolean;
 }
 
 interface FavoriteProps {
@@ -33,11 +35,27 @@ interface FavoriteProps {
   toggleFavorite: (restaurant: Restaurant) => void;
   error: string;
   setError: (error: string) => void;
-  isLoading?: boolean; // Add loading prop
+  isLoading?: boolean; 
 }
 
 const Favorite = ({ favorites, toggleFavorite, error, setError, isLoading = false }: FavoriteProps) => {
   const [favoriteCounts, setFavoriteCounts] = useState<{[id: string]: number}>({});
+  const [favoritesWithComments, setFavoritesWithComments] = useState<Restaurant[]>([]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Check authentication status on component mount
+  useEffect(() => {
+    const apiKey = localStorage.getItem('api_key');
+    setIsAuthenticated(!!apiKey);
+  }, []);
+  
+  // Initialize favorites with comments state
+  useEffect(() => {
+    setFavoritesWithComments(favorites.map(restaurant => ({ 
+      ...restaurant, 
+      showComments: false 
+    })));
+  }, [favorites]);
   
   // Fetch favorite counts when favorites change
   useEffect(() => {
@@ -55,6 +73,22 @@ const Favorite = ({ favorites, toggleFavorite, error, setError, isLoading = fals
       fetchFavoriteCounts();
     }
   }, [favorites]);
+
+  // Toggle comments visibility
+  const toggleComments = (restaurantId: string) => {
+    setFavoritesWithComments(prevFavorites => 
+      prevFavorites.map(restaurant => 
+        restaurant.id === restaurantId 
+          ? { ...restaurant, showComments: !restaurant.showComments }
+          : restaurant
+      )
+    );
+  };
+
+  // Navigate to login when needed for comments
+  const navigateToLogin = () => {
+    window.location.href = '/login';
+  };
 
   if (isLoading) {
     return (
@@ -81,7 +115,7 @@ const Favorite = ({ favorites, toggleFavorite, error, setError, isLoading = fals
     );
   }
 
-  if (!favorites || favorites.length === 0) {
+  if (!favoritesWithComments || favoritesWithComments.length === 0) {
     return (
       <div className="favorite-container">
         <div className="favorite-header">
@@ -101,11 +135,11 @@ const Favorite = ({ favorites, toggleFavorite, error, setError, isLoading = fals
     <div className="favorite-container">
       <div className="favorite-header">
         <h2>Your Favorite Restaurants</h2>
-        <p className="favorite-subtitle">You have {favorites.length} favorite {favorites.length === 1 ? 'restaurant' : 'restaurants'}</p>
+        <p className="favorite-subtitle">You have {favoritesWithComments.length} favorite {favoritesWithComments.length === 1 ? 'restaurant' : 'restaurants'}</p>
       </div>
       
       <div className="favorites-grid">
-        {favorites.map(restaurant => (
+        {favoritesWithComments.map(restaurant => (
           <div key={restaurant.id} className="restaurant-card grid-card">
             <button 
               className="favorite-button is-favorite"
@@ -144,12 +178,31 @@ const Favorite = ({ favorites, toggleFavorite, error, setError, isLoading = fals
                     <span className="icon">📞</span> {restaurant.display_phone}
                   </div>
                 )}
-                <div className="favorite-count">
-                  <span className="icon heart-icon">♥</span> 
-                  {(favoriteCounts[restaurant.id] || restaurant.favoriteCount || 0) <= 1 
-                    ? `${favoriteCounts[restaurant.id] || restaurant.favoriteCount || 0} Partner Loves This` 
-                    : `${favoriteCounts[restaurant.id] || restaurant.favoriteCount || 0} Partners Love This`}
+                <div className="restaurant-interactions">
+                  <div className="favorite-count">
+                    <span className="icon heart-icon">♥</span> 
+                    {(favoriteCounts[restaurant.id] || restaurant.favoriteCount || 0) <= 1 
+                      ? `${favoriteCounts[restaurant.id] || restaurant.favoriteCount || 0} Partner Loves This` 
+                      : `${favoriteCounts[restaurant.id] || restaurant.favoriteCount || 0} Partners Love This`}
+                  </div>
+                  <button 
+                    className={`comments-toggle ${restaurant.showComments ? 'active' : ''}`}
+                    onClick={() => toggleComments(restaurant.id)}
+                  >
+                    <span className="icon comment-icon">💬</span>
+                  </button>
                 </div>
+                
+                {/* Expandable comments section */}
+                {restaurant.showComments && (
+                  <div className="restaurant-comments">
+                    <Comments 
+                      restaurantId={restaurant.id} 
+                      isAuthenticated={isAuthenticated}
+                      onLogin={navigateToLogin}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>

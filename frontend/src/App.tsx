@@ -6,6 +6,7 @@ import Login from './components/Login'
 import Register from './components/Register'
 import Account from './components/Account'
 import Favorite from './components/Favorite'
+import Comments from './components/Comments'
 
 // Define types based on backend models
 interface SearchCriteria {
@@ -39,6 +40,8 @@ interface Restaurant {
   }[];
   isFavorite?: boolean; 
   favoriteCount?: number; 
+  commentCount?: number;
+  showComments?: boolean;
 }
 
 interface SearchResponse {
@@ -293,6 +296,23 @@ function App() {
       console.error('Error updating favorites:', err);
       setError('Failed to update favorites');
     }
+  };
+
+  // Toggle comments visibility
+  const toggleComments = (restaurantId: string) => {
+    setResults(prevResults => 
+      prevResults.map(restaurant => 
+        restaurant.id === restaurantId 
+          ? { ...restaurant, showComments: !restaurant.showComments }
+          : restaurant
+      )
+    );
+  };
+
+  // Navigate to login when needed for comments
+  const navigateToLogin = () => {
+    setCurrentView('/login');
+    navigate('/login');
   };
 
   // Authentication handlers
@@ -881,13 +901,32 @@ function App() {
                                     <span className="icon">📞</span> {restaurant.display_phone}
                                   </div>
                                 )}
-                                <div className="favorite-count">
-                                  <span className="icon heart-icon">♥</span> 
-                                  {(restaurant.favoriteCount || 0) <= 1 
-                                    ? `${restaurant.favoriteCount || 0} Partner Loves This` 
-                                    : `${restaurant.favoriteCount || 0} Partners Love This`}
+                                <div className="restaurant-interactions">
+                                  <div className="favorite-count">
+                                    <span className="icon heart-icon">♥</span> 
+                                    {(restaurant.favoriteCount || 0) <= 1 
+                                      ? `${restaurant.favoriteCount || 0} Partner Loves This` 
+                                      : `${restaurant.favoriteCount || 0} Partners Love This`}
+                                  </div>
+                                  <button 
+                                    className={`comments-toggle ${restaurant.showComments ? 'active' : ''}`}
+                                    onClick={() => toggleComments(restaurant.id)}
+                                  >
+                                    <span className="icon comment-icon">💬</span>
+                                  </button>
                                 </div>
                               </div>
+                              
+                              {/* Expandable comments section */}
+                              {restaurant.showComments && (
+                                <div className="restaurant-comments">
+                                  <Comments 
+                                    restaurantId={restaurant.id} 
+                                    isAuthenticated={isAuthenticated}
+                                    onLogin={navigateToLogin}
+                                  />
+                                </div>
+                              )}
                             </div>
                           </div>
                         ))}

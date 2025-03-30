@@ -1400,3 +1400,226 @@ button {
   padding-top: 10px;
   border-top: 1px dashed var(--light-gray);
 }
+
+/* Comment System Styles */
+.restaurant-interactions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.comments-toggle {
+  background-color: var(--off-white);
+  color: var(--medium-gray);
+  padding: 0;
+  border: 1px solid var(--light-gray);
+  border-radius: 50%;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(131, 131, 131, 0.05);
+  width: 34px !important; 
+  height: 34px !important; 
+  min-width: 34px !important;
+  min-height: 34px !important;
+  margin-top: 6px;
+  flex-shrink: 0; 
+}
+
+.comment-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: 0px; 
+  left: 3px;
+}
+
+.restaurant-comments {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dashed var(--light-gray);
+}
+
+.comments-section {
+  width: 100%;
+}
+
+.comments-section h4 {
+  font-size: 1.1rem;
+  color: var(--dark-gray);
+  margin-bottom: 15px;
+}
+
+.comment-form {
+  margin-bottom: 20px;
+}
+
+.comment-input {
+  width: calc(100% - 10%);
+  min-height: 80px;
+  padding: 10px;
+  border: 1px solid var(--light-gray);
+  border-radius: 4px;
+  font-size: 0.9rem;
+  resize: vertical;
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+
+.comment-input:focus {
+  outline: none;
+  border-color: var(--bain-red);
+}
+
+.comment-input:disabled {
+  background-color: var(--off-white);
+  cursor: not-allowed;
+}
+
+.comment-error {
+  color: var(--bain-red);
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.comment-submit {
+  background-color: var(--bain-red);
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.comment-submit:hover:not(:disabled) {
+  background-color: var(--bain-dark-red);
+}
+
+.comment-submit:disabled {
+  background-color: var(--light-gray);
+  cursor: not-allowed;
+}
+
+.comments-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.comments-loading {
+  text-align: center;
+  padding: 20px;
+  color: var(--medium-gray);
+}
+
+.no-comments {
+  text-align: center;
+  padding: 15px;
+  color: var(--medium-gray);
+  background-color: var(--off-white);
+  border-radius: 4px;
+  font-style: italic;
+}
+
+.comment-item {
+  padding: 12px;
+  border-bottom: 1px solid var(--light-gray);
+  margin-bottom: 10px;
+}
+
+.comment-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+}
+
+.comment-username {
+  font-weight: 600;
+  color: var(--bain-red);
+}
+
+.comment-date {
+  color: var(--medium-gray);
+  font-size: 0.8rem;
+}
+
+.comment-content {
+  color: var(--dark-gray);
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* Responsive styles for comments */
+@media (max-width: 768px) {
+  .restaurant-interactions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .comments-toggle {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    min-height: 34px !important;
+  }
+  
+  .comment-item {
+    padding: 10px;
+  }
+  
+  .comment-header {
+    flex-direction: column;
+  }
+  
+  .comment-date {
+    font-size: 0.75rem;
+  }
+}
+
+/* Grid card comment styles */
+.grid-card .restaurant-interactions {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.grid-card .comments-toggle {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+}
+
+.grid-card .restaurant-comments {
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.grid-card .comments-section h4 {
+  font-size: 1rem;
+}
+
+.grid-card .comment-input {
+  min-height: 60px;
+}
+
+.grid-card .comment-item {
+  padding: 8px;
+}
