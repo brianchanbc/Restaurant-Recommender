@@ -1,10 +1,12 @@
 from ..models import User
 import sqlite3
-from pathlib import Path
-from .user_lookup import users
-import bcrypt  
 import logging
-import secrets 
+from .user_lookup import users
+from ..utils.db_utils import execute_query
+from ..utils.auth_utils import (
+    verify_password, generate_api_key, 
+    hash_password, validate_email_format, validate_password_length
+)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -13,78 +15,50 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def get_db_connection():
-    """Create a connection to the SQLite database."""
-    db_path = Path(__file__).parents[2] / "db" / "recommender.db"
-    logger.info(f"Connecting to database at {db_path}")
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    return conn
-
-# Add this function for future password verification
-def verify_password(plain_password, hashed_password):
-    """Verify a password against its hash."""
-    return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password)
-
-def generate_api_key():
-    """Generate a secure random API key."""
-    return secrets.token_urlsafe(32)
-
-def authenticate_api_key(api_key):
-    """Authenticate the API key."""
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM user WHERE api_key = ?", (api_key,))
-        user = cursor.fetchone()
-        if user:
-            return {"message": "API key is valid."}, 200
-        else:
-            return {"error": "Invalid API key."}, 401
-    except sqlite3.Error as db_error:
-        logger.error(f"Database error: {db_error}")
-        return {"error": str(db_error)}, 500
-    finally:
-        if 'conn' in locals():
-            conn.close()
+def validate_user_input(user):
+    """Validate user input for email and password."""
+    if not validate_email_format(user.email):
+        return "Invalid email format."
+    
+    if not validate_password_length(user.password):
+        return "Password must be at least 8 characters long."
+    
+    if user.email not in users:
+        return "Unauthorized email/user."
+    
+    return None
 
 def create_user(user: User):
-    """Validate and create a new user."""        
+    """Validate and create a new user."""
     try:
-        # Validate email format
-        if not user.email or "@" not in user.email:
-            raise ValueError("Invalid email format.")
-        
-        # Validate password length
-        if len(user.password) < 8:
-            raise ValueError("Password must be at least 8 characters long.")
-        
-        # Check if this is a valid email, in the real world, check against a database
-        # Here for simplicity, we are showing the available users for testing to work 
-        if user.email not in users:
-            raise ValueError("Unauthorized email/user.")
+        # Validate user input
+        validation_error = validate_user_input(user)
+        if validation_error:
+            raise ValueError(validation_error)
         
         # Check if the user already exists in database
-        get_user_query = "SELECT * FROM user WHERE email = ?"    
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(get_user_query, (user.email,))
-        existing_user = cursor.fetchone()
+        existing_user = execute_query("SELECT * FROM user WHERE email = ?", (user.email,))
         if existing_user:
             raise ValueError("User already exists.")
+        
         logger.info(f"Passed all validation checks, creating user {user.email}.")
         
         # Generate an API key
         api_key = generate_api_key()
-        # Hash the password using bcrypt with a salt 
-        hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
-        # Now insert the user with the hashed password
-        insert_query = "INSERT INTO user (username, email, password, api_key) VALUES (?, ?, ?, ?)"
-        cursor.execute(insert_query, (users[user.email], user.email, hashed_password, api_key))
-        conn.commit()
+        # Hash the password
+        hashed_password = hash_password(user.password)
+        
+        # Insert the new user
+        execute_query(
+            "INSERT INTO user (username, email, password, api_key) VALUES (?, ?, ?, ?)",
+            (users[user.email], user.email, hashed_password, api_key),
+            commit=True
+        )
+        
         return {
             "message": "User created successfully.", 
             "username": users[user.email],
+            "api_key": api_key
         }, 201
     except sqlite3.Error as db_error:
         logger.error(f"Database error: {db_error}")
@@ -94,32 +68,17 @@ def create_user(user: User):
         if "already exists" in str(e):
             return {"error": str(e)}, 409  # Conflict
         return {"error": str(e)}, 400  # Bad Request
-    finally:
-        if 'conn' in locals():
-            conn.close()  
 
 def login_user(user: User):
-    """Validate and log in a user."""    
+    """Validate and log in a user."""
     try:
-        # Validate email format
-        if not user.email or "@" not in user.email:
-            raise ValueError("Invalid email format.")
+        # Validate user input
+        validation_error = validate_user_input(user)
+        if validation_error:
+            raise ValueError(validation_error)
         
-        # Validate password length
-        if len(user.password) < 8:
-            raise ValueError("Password must be at least 8 characters long.")
-        
-        # Check if this is a valid email, in the real world, check against a database
-        # Here for simplicity, we are showing the available users for testing to work 
-        if user.email not in users:
-            raise ValueError("Unauthorized email/user.")
-        
-        # Check if the user already exists in database
-        get_user_query = "SELECT * FROM user WHERE email = ?"
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(get_user_query, (user.email,))
-        existing_user = cursor.fetchone()
+        # Check if the user exists in database
+        existing_user = execute_query("SELECT * FROM user WHERE email = ?", (user.email,))
         if not existing_user:
             raise ValueError("Email/User does not exist.")
         
@@ -142,19 +101,12 @@ def login_user(user: User):
         if "Incorrect password" in str(e):
             return {"error": str(e)}, 401  # Unauthorized
         return {"error": str(e)}, 400  # Bad Request
-    finally:
-        if 'conn' in locals():
-            conn.close()   
 
 def change_password(user: User, api_key: str):
     """Validate and change the user's password."""
     try:
-        # Check if the user already exists in database 
-        get_user_query = "SELECT * FROM user WHERE email = ?"
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(get_user_query, (user.email,))
-        existing_user = cursor.fetchone()
+        # Check if the user exists in database 
+        existing_user = execute_query("SELECT * FROM user WHERE email = ?", (user.email,))
         if not existing_user:
             raise ValueError("User with this email does not exist.")
         
@@ -162,15 +114,21 @@ def change_password(user: User, api_key: str):
         if existing_user['api_key'] != api_key:
             raise ValueError("Invalid API key.")
         
+        # Validate password length
+        if not validate_password_length(user.password):
+            raise ValueError("Password must be at least 8 characters long.")
+        
         logger.info(f"Passed all validation checks, changing password for user {user.email}.")
         
-        # Hash the new password using bcrypt with a salt 
-        hashed_password = bcrypt.hashpw(user.password.encode('utf-8'), bcrypt.gensalt())
+        # Hash the new password
+        hashed_password = hash_password(user.password)
         
-        # Now update the user's password
-        update_query = "UPDATE user SET password = ? WHERE email = ?"
-        cursor.execute(update_query, (hashed_password, user.email))
-        conn.commit()
+        # Update the user's password
+        execute_query(
+            "UPDATE user SET password = ? WHERE email = ?", 
+            (hashed_password, user.email),
+            commit=True
+        )
         
         return {"message": "Password changed successfully."}, 200
     except sqlite3.Error as db_error:
@@ -179,6 +137,3 @@ def change_password(user: User, api_key: str):
     except ValueError as e:
         logger.error(f"Validation error: {e}")
         return {"error": str(e)}, 401
-    finally:
-        if 'conn' in locals():
-            conn.close()

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
-
+"""Models for API requests and responses"""
 class SearchCriteria(BaseModel):
     term: str # "Starbucks", "Italian", "Sushi"
     location: Optional[str] = None # "New York City", "NYC", "350 5th Ave, New York, NY 10118"
