@@ -1,6 +1,12 @@
 # Restaurant Recommendation System
+![Restaurant Recommendation UI - Search](./assets/restaurant-recommender-UI-Search.png)
+
+![Restaurant Recommendation UI - Favorites](./assets/restaurant-recommender-UI-Favorites.png)
+
 
 ## Tech Stack
+![Restaurant Recommendation System Architecture](./assets/restaurant-recommender.jpeg)
+
 **Frontend**: React, Vite, TypeScript, CSS
 
 **Backend**: FastAPI, Python
@@ -102,4 +108,4 @@ python create_tables.py
 
 1. Running in Docker vs Locally: Note that current settings are configured to run on Docker containers. If you need to run it locally, you need to change the target proxy of the frontend. In 'vite.config.ts' and 'vite.config.js' in /backend, change the line 'target: 'http://backend:8000',' to 'target: 'http://localhost:8000','.
 
-2. The backend server is configured to allow only dedicated users/emails to register for an account to mimic a real-world scenario for security sake. In a real-world application, we could authenticate against a company database like an employee table or an external service. While we could do that by inserting new records in the SQL database, we opted for a simpler way for quick testing, please directly update the record in backend/api/authentication/user_lookup.py and use emails/users that are in the list to register or else you would get an error setting up. 
+2. The backend server is configured to allow only dedicated users/emails to register for an account to mimic a real-world scenario for security sake. In a real-world application, we could authenticate against a company database like an employee table or an external service. While we could do that by inserting new records in the SQL database, we opted for a simpler way for quick testing, please directly update the record in backend/api/authentication/user_lookup.py and use emails/users that are in the list to register or else you would get an error setting up.
