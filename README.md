@@ -1,11 +1,11 @@
 # Restaurant Recommendation System
-![Restaurant Recommendation UI - Search](./assets/restaurant-recommender-UI-Search.png)
+![Restaurant Recommendation UI - Search](./assets/Restaurant-Recommender-UI-Search.png)
 
-![Restaurant Recommendation UI - Favorites](./assets/restaurant-recommender-UI-Favorites.png)
+![Restaurant Recommendation UI - Favorites](./assets/Restaurant-Recommender-UI-Favorites.png)
 
 
 ## Tech Stack
-![Restaurant Recommendation System Architecture](./assets/restaurant-recommender.jpeg)
+![Restaurant Recommendation System Architecture](./assets/Restaurant-Recommender.jpeg)
 
 **Frontend**: React, Vite, TypeScript, CSS
 
