@@ -1,9 +1,0 @@
-build:
-  docker:
-    frontend: ./frontend/Dockerfile
-    backend: ./backend/Dockerfile
-
-release:
-  image: backend
-  command:
-    - echo 'Release phase completed'
